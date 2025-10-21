@@ -1,0 +1,143 @@
+{
+  "coreFeatures": {
+    "layout": [
+      {
+        "name": "Flexible layout manager",
+        "description": "Foundation of the system. Not a static grid; requires a system (CSS Grid/Flexbox or a dedicated library) that allows panels to be added, removed, and resized, causing other panels to adapt automatically."
+      },
+      {
+        "name": "Collapsible panels (drawers)",
+        "description": "Provide a way to toggle the visibility of the Left01, Right01, and Terminal01 panels. Buttons in Top00 control this."
+      },
+      {
+        "name": "Draggable Splitters",
+        "description": "To achieve split view, provide draggable handles between panels and enable click-and-drag between tabs."
+      },
+      {
+        "name": "Modular Components",
+        "description": "Each panel (Left01, Right01, Terminal01, Middle00) is an independent, self-contained component so the layout manager can add or remove them without breaking others."
+      }
+    ],
+    "state": [
+      {
+        "name": "UI state management",
+        "description": "Application maintains a central 'memory' that tracks which panels are open or closed. When a Top00 button is clicked it updates this state which instructs the layout manager to show/hide panels (e.g., 'show Terminal01')."
+      },
+      {
+        "name": "Dynamic View/Content Routing",
+        "description": "Middle00 acts as a content host. Clicking Graph View in Left00 unloads the default view and loads the Graph View component into Middle00."
+      }
+    ]
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Default View",
+      "description": "User first opens the software (Default View)"
+    },
+    {
+      "stage": 2,
+      "name": "Expanded View",
+      "description": "User opens all 01 tools (Expanded View)"
+    },
+    {
+      "stage": 3,
+      "name": "Advanced View",
+      "description": "User is using the tool with productivity features (Advanced View)"
+    }
+  ],
+  "panels": {
+    "Left00": {
+      "buttons": [
+        {
+          "name": "Finder",
+          "icon": "Minimal Magnifying Glass",
+          "interactionType": "Modal Launcher",
+          "trigger": "On-click",
+          "targetScope": "Global Viewport (overlays the entire application)",
+          "functionalDescription": "Opens a Finder Modal centered on the screen as a separate overlay above all UI panels (Top00, Middle00, etc.). Background UI becomes de-emphasized and non-interactive while open. Clicking outside the modal or pressing Esc closes it. Modal should take up roughly 75% of the screen."
+        },
+        {
+          "name": "Graph View",
+          "icon": "Minimal Graph with Line and Nodes",
+          "interactionType": "View Switcher",
+          "trigger": "On-Click",
+          "targetScope": "Middle00 Panel Content",
+          "functionalDescription": "Replaces the internal content of Middle00 with the 'Graph View' component as a tab. Does not open or close any layout panels; only swaps what is shown inside Middle00. Button enters an active visual state to indicate the current view in Middle00."
+        },
+        {
+          "name": "Command Palette",
+          "icon": ">_",
+          "interactionType": "Modal Launcher",
+          "trigger": "On-click (shortcut: Cmd+P or Ctrl+P)",
+          "targetScope": "Global Viewport (overlays the entire application)",
+          "functionalDescription": "Functionally identical to Finder. Launches a Command Palette modal as a separate overlay over the entire UI. Rest of the application becomes non-interactive until a command is selected or the palette is closed."
+        }
+      ]
+    },
+    "Top00": {
+      "buttons": [
+        {
+          "name": "Toggle Left Panel",
+          "interactionType": "Panel Toggle",
+          "trigger": "On-click",
+          "targetScope": "Global Layout",
+          "functionalDescription": "Slides the Left01 panel (drawer) into view from the left, docking next to the static Left00 bar. Resizes Middle00 horizontally to accommodate Left01; Left01 does not float over Middle00. Button enters an active visual state when Left01 is open. Clicking again hides Left01 and Middle00 expands."
+        },
+        {
+          "name": "Toggle Terminal",
+          "interactionType": "Panel Toggle",
+          "trigger": "On-click",
+          "targetScope": "Global Layout",
+          "functionalDescription": "Slides the Terminal01 panel up from the bottom of the viewport. Resizes only Middle00 vertically and fits between Left01 and Right01, making Middle00 shorter to accommodate the terminal. Button enters an active visual state. Clicking again hides Terminal01 and panels above expand vertically."
+        },
+        {
+          "name": "Toggle Right Panel",
+          "interactionType": "Panel Toggle",
+          "trigger": "On-click",
+          "targetScope": "Global Layout",
+          "functionalDescription": "Slides the Right01 panel into view from the right side of the viewport. Resizes Middle00 and Terminal01 horizontally, making them narrower. This is key to the 'Split View' in Stage 3. Button enters an active visual state. Clicking again hides Right01 and Middle00 expands horizontally."
+        }
+      ]
+    },
+    "Left01": {
+      "panelName": "Left01",
+      "interactionType": "Collapsible Panel (Drawer)",
+      "defaultState": "Hidden",
+      "trigger": "Toggled by a Top00 button",
+      "layoutBehavior": "Docks to the left (next to Left00), resizes Middle00 horizontally, draggable splitter on its right edge",
+      "purpose": "Manage and organize all documents required for the FDA (eCTD) submission dossier",
+      "staticPlaceholderContent": "Submission: [Pre-IND 12345]\n-------------------\n▼ m1-administrative/\n    1.1-cover-letter.pdf\n    1.2-form-1571.pdf\n▼ m2-summaries/\n    2.1-introduction.docx\n    2.2-nonclinical-overview.docx\n    2.3-clinical-overview.docx\n▼ m3-quality/\n    3.1-drug-substance.pdf\n► m4-nonclinical/\n► m5-clinical/\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13"
+    },
+    "Terminal01": {
+      "panelName": "Terminal01",
+      "interactionType": "Collapsible Panel (Drawer)",
+      "defaultState": "Hidden",
+      "trigger": "Toggled by a Top00 button",
+      "layoutBehavior": "Docks to the bottom, resizes Middle00 and fits in between panels Left01 and Right01, and has a draggable splitter on its top edge",
+      "purpose": "Display raw data or source text used by the AI Copilot for verification and cross-referencing",
+      "staticPlaceholderContent": "[ AI Data Source | Cross-Reference ]\n1\n2\n\n\nThird Stage (Advanced View):\n\nAI Ref [ID: 8A42] for change in 2.2-nonclinical-overview.docx:\n\nSuggestion: Change \"significant\" to \"statistically significant (p<0.05)\".\n\nSource Data (m4-nonclinical/study-4B.pdf, pg 82):\n\"Group A (control) vs Group B (test) showed a p-value of 0.048 in\nmean tumor volume reduction.\"\n\nAwaiting user confirmation... █\n\n3\n4\n5\n6\n7\n8\n9\n10\n11"
+    },
+    "Right01": {
+      "panelName": "Right01",
+      "interactionType": "Collapsible Panel (Drawer)",
+      "defaultState": "Hidden",
+      "trigger": "Toggled by a Top00 Button",
+      "layoutBehavior": "Docks to the right, resizes Middle00 horizontally, draggable splitter on its left edge",
+      "purpose": "Provide AI-powered suggestions, in-document edits, and conversational assistance for navigation and workflow questions",
+      "staticPlaceholderContent": "AI Copilot\n-------------------\n\n▼ Suggestions for: [2.2-nonclinical.docx]\n\n[1] Inconsistent terminology.\n    Change 'drug compound' to 'drug substance'\n    (See reference: m3-quality) [Accept] [Ignore]\n\n[2] Missing citation for toxicity study.\n    [Generate Citation]\n\n-------------------\n[Ask a question...]\n> Where do I find the form for...?\n\nForm 1571 is in 'm1-administrative'.\n[Click to open]\n\n> █\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20"
+    },
+    "Middle00": {
+      "behaviors": [
+        {
+          "name": "Content Switching (View Host)",
+          "description": "Middle00 acts as a dynamic container designed to display one of several views (e.g., Graph View, a text editor, or a settings page). The content inside Middle00 is controlled exclusively by the View Switcher buttons in the Left00 static bar. This content-switching ability is always active and independent of whether Left01, Right01, or Terminal01 panels are open or closed."
+        },
+        {
+          "name": "Fluid Layout Participation (Adaptive Resizing)",
+          "description": "Middle00 automatically expands or shrinks to fill available space not occupied by other panels. In the default state it fills the entire viewport minus Top00 and Left00. When a panel is toggled, Middle00 resizes to make room (shrinks horizontally when Left01 opens; shrinks vertically when Terminal01 opens). When panels are resized, Middle00 acts as the opposing panel; dragging the splitter on Left01 to make it wider makes Middle00 narrower."
+        }
+      ]
+    }
+  }
+}
