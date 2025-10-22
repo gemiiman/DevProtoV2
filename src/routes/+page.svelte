@@ -59,10 +59,20 @@
 		dropZoneDirection = null;
 	}
 	
-	function handleDrop(event: CustomEvent<{panelId: string, direction: 'top' | 'bottom' | 'left' | 'right'}>) {
-		if (draggedTabId) {
-			splitPanel(event.detail.panelId, draggedTabId, event.detail.direction);
+	function handleDrop(event: CustomEvent<{panelId: string, direction: 'top' | 'bottom' | 'left' | 'right', tabId?: string}>) {
+		// Use tabId from event detail (preferred) or fall back to state
+		const tabIdToSplit = event.detail.tabId || draggedTabId;
+		console.log('handleDrop in +page.svelte:', {
+			eventDetail: event.detail,
+			tabIdToSplit,
+			draggedTabId
+		});
+		
+		if (tabIdToSplit) {
+			splitPanel(event.detail.panelId, tabIdToSplit, event.detail.direction);
 			handleTabDragEnd();
+		} else {
+			console.error('No tabId available for split!');
 		}
 	}
 </script>

@@ -229,8 +229,8 @@ export function splitPanel(panelId: string, tabId: string, direction: 'top' | 'b
 		const panel = findPanelById(root, panelId);
 		if (!panel || panel.type !== 'leaf') return root;
 		
-		// Remove tab from current panel
-		removeTabFromPanel(root, tabId);
+		// Note: svelte-dnd-action automatically removes the tab from the source list
+		// when dropped on a different dndzone, so no manual removal needed here
 		
 		// Create new leaf panel with the moved tab
 		const newPanel: LeafPanel = {

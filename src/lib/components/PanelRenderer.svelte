@@ -20,12 +20,21 @@
 	// Transform tabIds into dndzone-compatible items
 	$: tabItems = panel.type === 'leaf' ? panel.tabIds.map(id => ({ id })) : [];
 	
+	// Debug: Log when tabItems changes
+	$: if (panel.type === 'leaf') {
+		console.log('PanelRenderer tabItems updated:', {
+			panelId: panel.id,
+			tabItems,
+			tabIds: panel.tabIds
+		});
+	}
+	
 	// Track drag state
 	let isDragging = false;
-	let lastDropZone: string | null = null;
 	
 	// Tab bar dndzone handlers
 	function handleTabsConsider(e: CustomEvent) {
+		if (!e.detail) return;
 		console.log('Tabs Consider:', e.detail);
 		const { items, info } = e.detail;
 		
@@ -42,6 +51,7 @@
 	}
 	
 	function handleTabsFinalize(e: CustomEvent) {
+		if (!e.detail) return;
 		console.log('Tabs Finalize:', e.detail);
 		if (isDragging) {
 			isDragging = false;
@@ -52,39 +62,58 @@
 	// Drop zone handlers for each direction
 	function handleDropZoneConsider(direction: 'top' | 'bottom' | 'left' | 'right') {
 		return (e: CustomEvent) => {
-			console.log('Drop Zone Consider:', panel.id, direction, e.detail);
-			const { items } = e.detail;
-			const zoneKey = `${panel.id}-${direction}`;
+			if (!e.detail) return;
+			console.log('Drop Zone Consider [' + direction + ']:', {
+				panelId: panel.id,
+				direction,
+				items: e.detail.items,
+				info: e.detail.info,
+				fullDetail: e.detail
+			});
 			
-			// Check if something is being dragged over
-			if (items && items.length > 0) {
-				if (lastDropZone !== zoneKey) {
-					console.log('Drop Zone Enter:', panel.id, direction);
-					dispatch('dropzoneenter', { panelId: panel.id, direction });
-					lastDropZone = zoneKey;
-				}
-			} else if (lastDropZone === zoneKey) {
-				console.log('Drop Zone Leave');
+			const { items, info } = e.detail;
+			
+			// Check if item is hovering directly over this zone using info object
+			// Trigger constants from svelte-dnd-action:
+			// DRAGGED_ENTERED, DRAGGED_ENTERED_ANOTHER, DRAGGED_LEFT, DRAGGED_LEFT_ALL
+			const trigger = info.trigger;
+			const isEntering = trigger === 'DRAGGED_ENTERED' || trigger === 'DRAGGED_ENTERED_ANOTHER';
+			const isLeaving = trigger === 'DRAGGED_LEFT' || trigger === 'DRAGGED_LEFT_ALL';
+			
+			if (isEntering && items && items.length > 0) {
+				// Item entered this zone
+				console.log('✓ Drop Zone ENTER:', panel.id, direction, 'trigger:', trigger);
+				e.preventDefault(); // Tell browser this is a valid drop target
+				dispatch('dropzoneenter', { panelId: panel.id, direction });
+			} else if (isLeaving) {
+				// Item left this zone
+				console.log('✗ Drop Zone LEAVE:', panel.id, direction, 'trigger:', trigger);
 				dispatch('dropzoneleave');
-				lastDropZone = null;
 			}
 		};
 	}
 	
 	function handleDropZoneFinalize(direction: 'top' | 'bottom' | 'left' | 'right') {
 		return (e: CustomEvent) => {
-			console.log('Drop Zone Finalize:', panel.id, direction, e.detail);
+			if (!e.detail) return;
+			console.log('Drop Zone Finalize [' + direction + ']:', {
+				panelId: panel.id,
+				direction,
+				items: e.detail.items,
+				fullDetail: e.detail
+			});
+			
 			const { items } = e.detail;
 			
 			// Check if an item was actually dropped
 			if (items && items.length > 0) {
 				const droppedItem = items[0];
-				console.log('Drop Event:', panel.id, direction, droppedItem);
-				dispatch('drop', { panelId: panel.id, direction });
+				console.log('✓✓✓ DROP EVENT:', panel.id, direction, 'tabId:', droppedItem.id);
+				// Explicitly pass tabId
+				dispatch('drop', { panelId: panel.id, direction, tabId: droppedItem.id });
+			} else {
+				console.log('✗✗✗ Drop event but no items:', panel.id, direction);
 			}
-			
-			// Clean up drop zone state
-			lastDropZone = null;
 		};
 	}
 </script>
@@ -93,11 +122,11 @@
 	<!-- Leaf Panel: Render tabs and content -->
 	<div class="leaf-panel" data-panel-id={panel.id}>
 		<!-- Drop zones for splitting -->
-		{#if draggedTabId && !panel.tabIds.includes(draggedTabId)}
+		{#if draggedTabId}
 			<div 
 				class="drop-zone drop-zone-top"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'top'}
-				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				use:dndzone={{ items: [], flipDurationMs }}
 				on:consider={handleDropZoneConsider('top')}
 				on:finalize={handleDropZoneFinalize('top')}
 				role="region"
@@ -109,7 +138,7 @@
 			<div 
 				class="drop-zone drop-zone-bottom"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'bottom'}
-				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				use:dndzone={{ items: [], flipDurationMs }}
 				on:consider={handleDropZoneConsider('bottom')}
 				on:finalize={handleDropZoneFinalize('bottom')}
 				role="region"
@@ -121,7 +150,7 @@
 			<div 
 				class="drop-zone drop-zone-left"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'left'}
-				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				use:dndzone={{ items: [], flipDurationMs }}
 				on:consider={handleDropZoneConsider('left')}
 				on:finalize={handleDropZoneFinalize('left')}
 				role="region"
@@ -133,7 +162,7 @@
 			<div 
 				class="drop-zone drop-zone-right"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'right'}
-				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				use:dndzone={{ items: [], flipDurationMs }}
 				on:consider={handleDropZoneConsider('right')}
 				on:finalize={handleDropZoneFinalize('right')}
 				role="region"
@@ -144,22 +173,24 @@
 		{/if}
 		
 		<!-- Tab Bar -->
-		<div 
-			class="tab-bar"
-			use:dndzone={{ items: tabItems, flipDurationMs, type: 'tab' }}
-			on:consider={handleTabsConsider}
-			on:finalize={handleTabsFinalize}
-		>
-			{#if panel.tabIds.length === 0}
+		{#if panel.tabIds.length === 0}
+			<div class="tab-bar">
 				<div class="no-tabs-message">No tabs in this panel</div>
-			{:else}
+			</div>
+		{:else}
+			<div 
+				class="tab-bar"
+				use:dndzone={{ items: tabItems, flipDurationMs, type: 'tab' }}
+				on:consider={handleTabsConsider}
+				on:finalize={handleTabsFinalize}
+			>
 				{#each tabItems as item (item.id)}
 					{@const tab = getTabById(item.id)}
 					{#if tab}
 						<div 
 							class="tab"
 							class:active={panel.activeTabId === tab.id}
-							on:click={() => setActiveTab(tab.id)}
+							on:mousedown={() => setActiveTab(tab.id)}
 							role="tab"
 							tabindex="0"
 							aria-selected={panel.activeTabId === tab.id}
@@ -168,6 +199,7 @@
 							<button 
 								class="tab-close"
 								on:click|stopPropagation={() => closeTab(tab.id)}
+								on:mousedown|stopPropagation
 								aria-label="Close {tab.title}"
 							>
 								<X size={14} />
@@ -175,8 +207,8 @@
 						</div>
 					{/if}
 				{/each}
-			{/if}
-		</div>
+			</div>
+		{/if}
 		
 		<!-- Content Area -->
 		<div class="content-area">
@@ -279,47 +311,52 @@
 		background-color: #1e1e1e;
 	}
 	
-	/* Drop Zones */
+	/* Drop Zones - DEBUG: Made larger and more visible */
 	.drop-zone {
 		position: absolute;
 		z-index: 100;
-		background-color: rgba(14, 99, 156, 0.1);
-		border: 2px dashed transparent;
+		/* DEBUG: Always show a subtle background */
+		background-color: rgba(255, 0, 0, 0.1);
+		border: 2px dashed rgba(255, 0, 0, 0.2);
 		transition: all 0.2s ease;
 		pointer-events: all;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 	
 	.drop-zone.active {
-		background-color: rgba(14, 99, 156, 0.3);
+		background-color: rgba(14, 99, 156, 0.4);
 		border-color: #0e639c;
+		border-width: 3px;
 	}
 	
 	.drop-zone-top {
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 25%;
+		height: 40%; /* DEBUG: Increased from 25% */
 	}
 	
 	.drop-zone-bottom {
 		bottom: 0;
 		left: 0;
 		right: 0;
-		height: 25%;
+		height: 40%; /* DEBUG: Increased from 25% */
 	}
 	
 	.drop-zone-left {
-		top: 25%;
-		bottom: 25%;
+		top: 30%; /* Adjusted to not overlap top/bottom */
+		bottom: 30%;
 		left: 0;
-		width: 25%;
+		width: 40%; /* DEBUG: Increased from 25% */
 	}
 	
 	.drop-zone-right {
-		top: 25%;
-		bottom: 25%;
+		top: 30%; /* Adjusted to not overlap top/bottom */
+		bottom: 30%;
 		right: 0;
-		width: 25%;
+		width: 40%; /* DEBUG: Increased from 25% */
 	}
 	
 	.drop-indicator {
