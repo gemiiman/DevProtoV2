@@ -1,6 +1,61 @@
 <script lang="ts">
 	// Import the tab management function
 	import { openEditorTab } from '$lib/stores/layout';
+	
+	// Define folder structure with expand/collapse state
+	interface FileItem {
+		name: string;
+	}
+	
+	interface Folder {
+		name: string;
+		expanded: boolean;
+		files: FileItem[];
+	}
+	
+	// Reactive folder tree
+	let tree: Folder[] = [
+		{
+			name: 'm1-administrative',
+			expanded: true,
+			files: [
+				{ name: '1.1-cover-letter.pdf' },
+				{ name: '1.2-form-1571.pdf' }
+			]
+		},
+		{
+			name: 'm2-summaries',
+			expanded: true,
+			files: [
+				{ name: '2.1-introduction.docx' },
+				{ name: '2.2-nonclinical-overview.docx' },
+				{ name: '2.3-clinical-overview.docx' }
+			]
+		},
+		{
+			name: 'm3-quality',
+			expanded: true,
+			files: [
+				{ name: '3.1-drug-substance.pdf' }
+			]
+		},
+		{
+			name: 'm4-nonclinical',
+			expanded: false,
+			files: []
+		},
+		{
+			name: 'm5-clinical',
+			expanded: false,
+			files: []
+		}
+	];
+	
+	// Toggle folder expand/collapse
+	function toggleFolder(folder: Folder) {
+		folder.expanded = !folder.expanded;
+		tree = tree; // Trigger reactivity
+	}
 </script>
 
 <!-- Left01: Document Management Panel (Collapsible Drawer) -->
@@ -10,42 +65,26 @@
 			<div class="tree-header">Submission: [Pre-IND 12345]</div>
 			<div class="tree-divider">-------------------</div>
 			
-			<!-- m1-administrative folder -->
-			<div class="folder">
-				<div class="folder-name">▼ m1-administrative/</div>
-				<button class="file-item" on:click={() => openEditorTab('1.1-cover-letter.pdf')}>
-					1.1-cover-letter.pdf
-				</button>
-				<button class="file-item" on:click={() => openEditorTab('1.2-form-1571.pdf')}>
-					1.2-form-1571.pdf
-				</button>
-			</div>
-			
-			<!-- m2-summaries folder -->
-			<div class="folder">
-				<div class="folder-name">▼ m2-summaries/</div>
-				<button class="file-item" on:click={() => openEditorTab('2.1-introduction.docx')}>
-					2.1-introduction.docx
-				</button>
-				<button class="file-item" on:click={() => openEditorTab('2.2-nonclinical-overview.docx')}>
-					2.2-nonclinical-overview.docx
-				</button>
-				<button class="file-item" on:click={() => openEditorTab('2.3-clinical-overview.docx')}>
-					2.3-clinical-overview.docx
-				</button>
-			</div>
-			
-			<!-- m3-quality folder -->
-			<div class="folder">
-				<div class="folder-name">▼ m3-quality/</div>
-				<button class="file-item" on:click={() => openEditorTab('3.1-drug-substance.pdf')}>
-					3.1-drug-substance.pdf
-				</button>
-			</div>
-			
-			<!-- Collapsed folders -->
-			<div class="folder-name">► m4-nonclinical/</div>
-			<div class="folder-name">► m5-clinical/</div>
+			<!-- Dynamic folder tree -->
+			{#each tree as folder}
+				<div class="folder">
+					<button 
+						class="folder-name"
+						on:click={() => toggleFolder(folder)}
+						aria-expanded={folder.expanded}
+					>
+						{folder.expanded ? '▼' : '►'} {folder.name}/
+					</button>
+					
+					{#if folder.expanded}
+						{#each folder.files as file}
+							<button class="file-item" on:click={() => openEditorTab(file.name)}>
+								{file.name}
+							</button>
+						{/each}
+					{/if}
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>
@@ -89,9 +128,25 @@
 	}
 	
 	.folder-name {
+		display: block;
+		width: 100%;
+		padding: 0.25rem 0;
+		background: transparent;
+		border: none;
 		color: #cccccc;
+		font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+		font-size: 13px;
+		text-align: left;
+		cursor: pointer;
 		margin-bottom: 0.25rem;
 		user-select: none;
+		transition: background-color 0.2s ease, color 0.2s ease;
+		border-radius: 2px;
+	}
+	
+	.folder-name:hover {
+		background-color: #2a2a2a;
+		color: #fff;
 	}
 	
 	.file-item {

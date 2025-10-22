@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { dndzone } from 'svelte-dnd-action';
 	import { tabs, setActiveTab, closeTab, type Panel, type LeafPanel } from '$lib/stores/layout';
 	import { X } from 'lucide-svelte';
 	
@@ -9,40 +10,82 @@
 	export let dropZoneDirection: 'top' | 'bottom' | 'left' | 'right' | null = null;
 	
 	const dispatch = createEventDispatcher();
+	const flipDurationMs = 200;
 	
 	// Get tab by ID
 	function getTabById(id: string) {
 		return $tabs.find(t => t.id === id);
 	}
 	
-	// Tab drag handlers
-	function handleTabDragStart(event: DragEvent, tabId: string) {
-		if (event.dataTransfer) {
-			event.dataTransfer.effectAllowed = 'move';
-			event.dataTransfer.setData('text/plain', tabId);
+	// Transform tabIds into dndzone-compatible items
+	$: tabItems = panel.type === 'leaf' ? panel.tabIds.map(id => ({ id })) : [];
+	
+	// Track drag state
+	let isDragging = false;
+	let lastDropZone: string | null = null;
+	
+	// Tab bar dndzone handlers
+	function handleTabsConsider(e: CustomEvent) {
+		console.log('Tabs Consider:', e.detail);
+		const { items, info } = e.detail;
+		
+		// Detect drag start
+		if (!isDragging && info.source === 'pointer' && items.length > 0) {
+			isDragging = true;
+			// Find the item being dragged (the one marked as isDragged)
+			const draggedItem = items.find((item: any) => item.isDndShadowItem === false);
+			if (draggedItem) {
+				console.log('Drag Start:', draggedItem.id);
+				dispatch('dragstart', draggedItem.id);
+			}
 		}
-		dispatch('dragstart', tabId);
 	}
 	
-	function handleTabDragEnd() {
-		dispatch('dragend');
-	}
-	
-	// Drop zone handlers
-	function handleDropZoneEnter(panelId: string, direction: 'top' | 'bottom' | 'left' | 'right') {
-		dispatch('dropzoneenter', { panelId, direction });
-	}
-	
-	function handleDropZoneDrop(event: DragEvent, panelId: string, direction: 'top' | 'bottom' | 'left' | 'right') {
-		event.preventDefault();
-		dispatch('drop', { panelId, direction });
-	}
-	
-	function handleDragOver(event: DragEvent) {
-		event.preventDefault();
-		if (event.dataTransfer) {
-			event.dataTransfer.dropEffect = 'move';
+	function handleTabsFinalize(e: CustomEvent) {
+		console.log('Tabs Finalize:', e.detail);
+		if (isDragging) {
+			isDragging = false;
+			dispatch('dragend');
 		}
+	}
+	
+	// Drop zone handlers for each direction
+	function handleDropZoneConsider(direction: 'top' | 'bottom' | 'left' | 'right') {
+		return (e: CustomEvent) => {
+			console.log('Drop Zone Consider:', panel.id, direction, e.detail);
+			const { items } = e.detail;
+			const zoneKey = `${panel.id}-${direction}`;
+			
+			// Check if something is being dragged over
+			if (items && items.length > 0) {
+				if (lastDropZone !== zoneKey) {
+					console.log('Drop Zone Enter:', panel.id, direction);
+					dispatch('dropzoneenter', { panelId: panel.id, direction });
+					lastDropZone = zoneKey;
+				}
+			} else if (lastDropZone === zoneKey) {
+				console.log('Drop Zone Leave');
+				dispatch('dropzoneleave');
+				lastDropZone = null;
+			}
+		};
+	}
+	
+	function handleDropZoneFinalize(direction: 'top' | 'bottom' | 'left' | 'right') {
+		return (e: CustomEvent) => {
+			console.log('Drop Zone Finalize:', panel.id, direction, e.detail);
+			const { items } = e.detail;
+			
+			// Check if an item was actually dropped
+			if (items && items.length > 0) {
+				const droppedItem = items[0];
+				console.log('Drop Event:', panel.id, direction, droppedItem);
+				dispatch('drop', { panelId: panel.id, direction });
+			}
+			
+			// Clean up drop zone state
+			lastDropZone = null;
+		};
 	}
 </script>
 
@@ -54,10 +97,9 @@
 			<div 
 				class="drop-zone drop-zone-top"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'top'}
-				on:dragenter={() => handleDropZoneEnter(panel.id, 'top')}
-				on:dragleave={() => dispatch('dropzoneleave')}
-				on:dragover={handleDragOver}
-				on:drop={(e) => handleDropZoneDrop(e, panel.id, 'top')}
+				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				on:consider={handleDropZoneConsider('top')}
+				on:finalize={handleDropZoneFinalize('top')}
 				role="region"
 				aria-label="Drop zone top"
 			>
@@ -67,10 +109,9 @@
 			<div 
 				class="drop-zone drop-zone-bottom"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'bottom'}
-				on:dragenter={() => handleDropZoneEnter(panel.id, 'bottom')}
-				on:dragleave={() => dispatch('dropzoneleave')}
-				on:dragover={handleDragOver}
-				on:drop={(e) => handleDropZoneDrop(e, panel.id, 'bottom')}
+				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				on:consider={handleDropZoneConsider('bottom')}
+				on:finalize={handleDropZoneFinalize('bottom')}
 				role="region"
 				aria-label="Drop zone bottom"
 			>
@@ -80,10 +121,9 @@
 			<div 
 				class="drop-zone drop-zone-left"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'left'}
-				on:dragenter={() => handleDropZoneEnter(panel.id, 'left')}
-				on:dragleave={() => dispatch('dropzoneleave')}
-				on:dragover={handleDragOver}
-				on:drop={(e) => handleDropZoneDrop(e, panel.id, 'left')}
+				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				on:consider={handleDropZoneConsider('left')}
+				on:finalize={handleDropZoneFinalize('left')}
 				role="region"
 				aria-label="Drop zone left"
 			>
@@ -93,10 +133,9 @@
 			<div 
 				class="drop-zone drop-zone-right"
 				class:active={dropZonePanel === panel.id && dropZoneDirection === 'right'}
-				on:dragenter={() => handleDropZoneEnter(panel.id, 'right')}
-				on:dragleave={() => dispatch('dropzoneleave')}
-				on:dragover={handleDragOver}
-				on:drop={(e) => handleDropZoneDrop(e, panel.id, 'right')}
+				use:dndzone={{ items: [], flipDurationMs, type: 'dropzone' }}
+				on:consider={handleDropZoneConsider('right')}
+				on:finalize={handleDropZoneFinalize('right')}
 				role="region"
 				aria-label="Drop zone right"
 			>
@@ -105,19 +144,21 @@
 		{/if}
 		
 		<!-- Tab Bar -->
-		<div class="tab-bar">
+		<div 
+			class="tab-bar"
+			use:dndzone={{ items: tabItems, flipDurationMs, type: 'tab' }}
+			on:consider={handleTabsConsider}
+			on:finalize={handleTabsFinalize}
+		>
 			{#if panel.tabIds.length === 0}
 				<div class="no-tabs-message">No tabs in this panel</div>
 			{:else}
-				{#each panel.tabIds as tabId}
-					{@const tab = getTabById(tabId)}
+				{#each tabItems as item (item.id)}
+					{@const tab = getTabById(item.id)}
 					{#if tab}
 						<div 
 							class="tab"
 							class:active={panel.activeTabId === tab.id}
-							draggable="true"
-							on:dragstart={(e) => handleTabDragStart(e, tab.id)}
-							on:dragend={handleTabDragEnd}
 							on:click={() => setActiveTab(tab.id)}
 							role="tab"
 							tabindex="0"
