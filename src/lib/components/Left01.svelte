@@ -51,10 +51,10 @@
 		}
 	];
 	
-	// Toggle folder expand/collapse
+	// Ensure this function correctly updates the array to trigger reactivity
 	function toggleFolder(folder: Folder) {
 		folder.expanded = !folder.expanded;
-		tree = tree; // Trigger reactivity
+		tree = [...tree]; // Reassign to trigger Svelte's reactivity
 	}
 </script>
 
