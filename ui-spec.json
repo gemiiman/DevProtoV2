@@ -14,6 +14,10 @@
         "description": "To achieve split view, provide draggable handles between panels and enable click-and-drag between tabs."
       },
       {
+        "name": "Dynamic Tab Splitting (within Middle00)",
+        "description": "Within the Middle00 viewport (or any viewport created by splitting it), tabs can be dragged towards the edges (top, bottom, left, right). When dragging near an edge, a visual drop zone indicator should appear. Dropping the tab onto this indicator splits the current viewport, creating a new adjacent viewport containing the dropped tab. This allows for creating flexible nested layouts (side-by-side or stacked tab groups) purely within the Middle00 area. Each internal split created this way should also add a draggable splitter handle for resizing these internal viewports."
+      },
+      {
         "name": "Modular Components",
         "description": "Each panel (Left01, Right01, Terminal01, Middle00) is an independent, self-contained component so the layout manager can add or remove them without breaking others."
       }

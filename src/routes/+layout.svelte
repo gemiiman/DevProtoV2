@@ -8,8 +8,7 @@
 		isRight01Open,
 		isTerminalOpen,
 		showFinder,
-		showCommandPalette,
-		activeView
+		showCommandPalette
 	} from '$lib/stores/layout';
 	
 	// Import panel components

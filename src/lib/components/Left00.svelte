@@ -1,9 +1,12 @@
 <script lang="ts">
-	// Import stores
-	import { showFinder, showCommandPalette, activeView } from '$lib/stores/layout';
+	// Import stores and functions
+	import { showFinder, showCommandPalette, openGraphTab, tabs, activeTabId } from '$lib/stores/layout';
 	
 	// Import icons from lucide-svelte
 	import { Search, Network, Terminal } from 'lucide-svelte';
+	
+	// Check if graph tab is active
+	$: isGraphActive = $tabs.some(tab => tab.kind === 'graph' && tab.id === $activeTabId);
 </script>
 
 <!-- Left00: Static Sidebar with Action Buttons -->
@@ -21,8 +24,8 @@
 	<!-- Graph View Button -->
 	<button
 		class="action-button"
-		class:active={$activeView === 'graph'}
-		on:click={() => activeView.set('graph')}
+		class:active={isGraphActive}
+		on:click={openGraphTab}
 		title="Graph View"
 		aria-label="Switch to Graph View"
 	>

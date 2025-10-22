@@ -1,7 +1,18 @@
 <script lang="ts">
-	// Import stores for modals and content switching
-	import { showFinder, showCommandPalette, activeView } from '$lib/stores/layout';
+	import { 
+		tabs, 
+		rootPanel,
+		splitPanel,
+		showFinder, 
+		showCommandPalette 
+	} from '$lib/stores/layout';
+	import PanelRenderer from '$lib/components/PanelRenderer.svelte';
 	import { X } from 'lucide-svelte';
+	
+	// Drag state
+	let draggedTabId: string | null = null;
+	let dropZonePanel: string | null = null;
+	let dropZoneDirection: 'top' | 'bottom' | 'left' | 'right' | null = null;
 	
 	// Handle Esc key to close modals
 	function handleKeydown(event: KeyboardEvent) {
@@ -23,37 +34,45 @@
 			showCommandPalette.set(false);
 		}
 	}
+	
+	// Tab drag handlers
+	function handleTabDragStart(event: CustomEvent<string>) {
+		draggedTabId = event.detail;
+	}
+	
+	function handleTabDragEnd() {
+		draggedTabId = null;
+		dropZonePanel = null;
+		dropZoneDirection = null;
+	}
+	
+	// Drop zone handlers
+	function handleDropZoneEnter(event: CustomEvent<{panelId: string, direction: 'top' | 'bottom' | 'left' | 'right'}>) {
+		if (draggedTabId) {
+			dropZonePanel = event.detail.panelId;
+			dropZoneDirection = event.detail.direction;
+		}
+	}
+	
+	function handleDropZoneLeave() {
+		dropZonePanel = null;
+		dropZoneDirection = null;
+	}
+	
+	function handleDrop(event: CustomEvent<{panelId: string, direction: 'top' | 'bottom' | 'left' | 'right'}>) {
+		if (draggedTabId) {
+			splitPanel(event.detail.panelId, draggedTabId, event.detail.direction);
+			handleTabDragEnd();
+		}
+	}
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
 
-<!-- Middle00: Dynamic Content Area -->
+<!-- Middle00: Dynamic Split Panel System -->
 <div class="middle00-container">
-	{#if $activeView === 'graph'}
-		<!-- Graph View Content -->
-		<div class="graph-view">
-			<h1>Graph View</h1>
-			<div class="graph-placeholder">
-				<p>Graph visualization will be rendered here</p>
-				<div class="graph-mockup">
-					<svg viewBox="0 0 400 300" class="graph-svg">
-						<!-- Node circles -->
-						<circle cx="100" cy="150" r="30" fill="#0e639c" />
-						<circle cx="200" cy="80" r="30" fill="#0e639c" />
-						<circle cx="200" cy="220" r="30" fill="#0e639c" />
-						<circle cx="300" cy="150" r="30" fill="#0e639c" />
-						
-						<!-- Connecting lines -->
-						<line x1="100" y1="150" x2="200" y2="80" stroke="#888" stroke-width="2" />
-						<line x1="100" y1="150" x2="200" y2="220" stroke="#888" stroke-width="2" />
-						<line x1="200" y1="80" x2="300" y2="150" stroke="#888" stroke-width="2" />
-						<line x1="200" y1="220" x2="300" y2="150" stroke="#888" stroke-width="2" />
-					</svg>
-				</div>
-			</div>
-		</div>
-	{:else}
-		<!-- Default Welcome View -->
+	{#if $tabs.length === 0}
+		<!-- Welcome View when no tabs -->
 		<div class="welcome-view">
 			<h1>Welcome to FDA Submission Manager</h1>
 			<p>Your intelligent assistant for eCTD document management and compliance.</p>
@@ -72,6 +91,21 @@
 				</div>
 			</div>
 		</div>
+	{:else}
+		<!-- Render panel structure -->
+		{#key $rootPanel}
+			<PanelRenderer 
+				panel={$rootPanel} 
+				{draggedTabId} 
+				{dropZonePanel} 
+				{dropZoneDirection}
+				on:dragstart={handleTabDragStart}
+				on:dragend={handleTabDragEnd}
+				on:dropzoneenter={handleDropZoneEnter}
+				on:dropzoneleave={handleDropZoneLeave}
+				on:drop={handleDrop}
+			/>
+		{/key}
 	{/if}
 </div>
 
@@ -143,10 +177,12 @@
 
 <style>
 	.middle00-container {
+		display: flex;
+		flex-direction: column;
 		width: 100%;
 		height: 100%;
-		overflow: auto;
 		background-color: #1e1e1e;
+		overflow: hidden;
 	}
 	
 	/* Welcome View */
@@ -154,6 +190,11 @@
 		padding: 3rem 2rem;
 		max-width: 900px;
 		margin: 0 auto;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 	
 	.welcome-view h1 {
@@ -197,44 +238,6 @@
 		color: #888;
 		font-size: 0.95rem;
 		line-height: 1.5;
-	}
-	
-	/* Graph View */
-	.graph-view {
-		padding: 2rem;
-		width: 100%;
-		height: 100%;
-	}
-	
-	.graph-view h1 {
-		color: #fff;
-		margin-bottom: 2rem;
-	}
-	
-	.graph-placeholder {
-		background-color: #252526;
-		border: 1px solid #333;
-		border-radius: 8px;
-		padding: 2rem;
-		text-align: center;
-	}
-	
-	.graph-placeholder p {
-		color: #888;
-		margin-bottom: 2rem;
-	}
-	
-	.graph-mockup {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		min-height: 300px;
-	}
-	
-	.graph-svg {
-		max-width: 400px;
-		width: 100%;
-		height: auto;
 	}
 	
 	/* Modal Overlay */
