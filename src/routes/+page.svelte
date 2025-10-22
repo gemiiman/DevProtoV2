@@ -8,95 +8,93 @@
 	import { X } from 'lucide-svelte';
 	import 'dockview-core/dist/styles/dockview.css';
 
-	// --- Placeholder Content ---
+	// --- Placeholder Content with Issues ---
 	const placeholderContent: { [key: string]: string } = {
+		// Inconsistency: Uses informal date, missing standard elements
 		'1.1-cover-letter.pdf': `[Company Letterhead]
 
-Date: October 22, 2025
+Date: Today, Oct 22
 
-Document Control Center
-Center for Drug Evaluation and Research (CDER)
-Food and Drug Administration
+FDA CDER Document Control
 10903 New Hampshire Avenue
-Silver Spring, MD 20993-0002
+Silver Spring, MD 20993
 
-Subject: Pre-IND Meeting Request for [Drug Name] (Proposed Indication: [Indication])
+Subject: Meeting Request for DRUG-X
 
-Dear Sir/Madam,
+Dear FDA,
 
-On behalf of [Sponsor Name], we respectfully submit this request for a Pre-Investigational New Drug (Pre-IND) meeting regarding our development program for [Drug Name]...
+We want a Pre-IND meeting for DRUG-X for treating Bad Disease... We think it works great based on early stuff.
 
-We propose the following dates for the meeting: ...
+Proposed dates: Nov 10, Nov 12, Nov 15.
 
-Sincerely,
-[Your Name/Title]
+Thanks,
+[Your Name]
 [Sponsor Name]
 `,
+		// Inconsistency: Missing key information like Sponsor Address, Phase
 		'1.2-form-1571.pdf': `Form FDA 1571 - Investigational New Drug Application (IND)
 
 1. NAME OF SPONSOR: [Sponsor Name]
 2. DATE OF SUBMISSION: October 22, 2025
-3. ADDRESS: [Sponsor Address]
+3. ADDRESS: [MISSING]
 ...
 7. NAME(S) OF DRUG: [Drug Name] / [Code Name]
 8. IND NUMBER (If previously assigned): N/A
 9. PROPOSED INDICATION(S) OR USE(S): [Indication]
-10. PHASE(S) OF CLINICAL INVESTIGATION TO BE CONDUCTED: Phase 1
+10. PHASE(S) OF CLINICAL INVESTIGATION TO BE CONDUCTED: [MISSING]
 ...
-15. CONTENTS OF SUBMISSION:
-    [X] Initial Investigational New Drug Application (IND)
-    [ ] Pre-IND Submission
-    [ ] Protocol Amendment
-    ...
-16. IS THIS APPLICATION EXEMPT FROM THE APPLICATION USER FEE? [X] Yes [ ] No
-    If yes, state reason: Pre-clinical development stage.
-
-[Signature, Typed Name, Title, Telephone Number]
+15. CONTENTS OF SUBMISSION: [X] Initial IND
+...
+[Signature, Typed Name, Title]
 `,
+		// Inconsistency: Vague language ("exhibits potential", "promising results")
 		'2.1-introduction.docx': `Module 2: Common Technical Document Summaries
 2.1 Introduction
 
-This document provides an introduction to the Investigational New Drug (IND) application for [Drug Name], a novel [Drug Class/Description] being developed by [Sponsor Name] for the treatment of [Indication].
+This IND application is for [Drug Name], a potential [Drug Class] being developed by [Sponsor Name] for [Indication].
 
-[Drug Name] exhibits [Mechanism of Action]. Preclinical studies have demonstrated [Key Preclinical Findings].
+[Drug Name] exhibits potential via [Mechanism of Action]. Preclinical studies showed promising results.
 
-This submission includes data supporting the initiation of Phase 1 clinical trials to assess the safety, tolerability, and pharmacokinetics of [Drug Name] in healthy volunteers.
+This submission supports Phase 1 trials in healthy volunteers.
 `,
+		// Inconsistency: Uses "drug compound" instead of "drug substance", vague "significant"
 		'2.2-nonclinical-overview.docx': `Module 2: Common Technical Document Summaries
 2.2 Nonclinical Overview
 
-This overview summarizes the nonclinical pharmacology, pharmacokinetic, and toxicology studies conducted with [Drug Name].
+Summary of nonclinical studies for the DRUG COMPOUND [Drug Name].
 
-Pharmacology: Studies demonstrated [Primary Pharmacology Finding] in relevant models.
-Pharmacokinetics: Absorption, distribution, metabolism, and excretion (ADME) profiles were characterized in [Species Tested]. Key findings include [Key PK Finding].
-Toxicology: Single-dose and repeat-dose toxicity studies were conducted in [Species Tested]. The No Observed Adverse Effect Level (NOAEL) was determined to be [NOAEL Value]. Safety pharmacology studies indicated [Key Safety Pharm Finding].
+Pharmacology: Showed activity.
+PK: ADME profiles okay in rats.
+Tox: Repeat-dose tox done in rats and dogs. Results were significant. NOAEL established. Safety pharm studies okay.
 
-These nonclinical data support the proposed starting dose and dose escalation scheme for the Phase 1 clinical trial.
+Data supports Phase 1.
 `,
+		// Inconsistency: Missing specific details (Protocol #, study design elements)
 		'2.3-clinical-overview.docx': `Module 2: Common Technical Document Summaries
 2.3 Clinical Overview
 
-Purpose: To summarize the planned clinical development program for [Drug Name] for the treatment of [Indication].
+Purpose: Clinical plan for [Drug Name] for [Indication].
 
-Background: [Brief background on the disease/indication and unmet need].
+Background: [Disease background].
 
-Clinical Program: The initial Phase 1 study ([Protocol Number]) is designed as a [Study Design - e.g., randomized, double-blind, placebo-controlled] study in healthy volunteers to evaluate the safety, tolerability, and pharmacokinetics of single ascending doses of [Drug Name]. Subsequent studies will explore [Future Clinical Plans].
+Clinical Program: The first study ([Protocol # MISSING]) is a study in healthy volunteers to evaluate safety/PK. Later studies will explore efficacy.
 
-Risk/Benefit Assessment: Based on the nonclinical data, the potential benefits of investigating [Drug Name] for [Indication] are believed to outweigh the potential risks for initiating Phase 1 studies.
+Risk/Benefit: Benefits outweigh risks for Phase 1.
 `,
+		// Inconsistency: Contains placeholder "[To be provided later]"
 		'3.1-drug-substance.pdf': `Module 3: Quality
 3.1 Drug Substance - [Drug Name]
 
-Manufacturer: [Manufacturer Name and Address]
-Description: [Chemical Name], [Structure], [Physical/Chemical Properties]
-Manufacturing Process: [Flow chart and brief description of synthesis]
-Control of Materials: Specifications for starting materials and reagents are provided.
-Control of Critical Steps: Critical process parameters are identified and controlled.
-Process Validation: N/A (To be provided later)
-Characterization: Structural confirmation data (NMR, MS, IR, UV) and impurity profiles are included.
-Control of Drug Substance: Specifications including tests for appearance, identity, assay, impurities, etc. are provided. Reference standards are described.
-Container Closure System: [Description of container]
-Stability: Preliminary stability data under accelerated conditions are included.
+Manufacturer: [Manufacturer Name]
+Description: [Chemical Info]
+Manufacturing Process: [Description]
+Control of Materials: Specs provided.
+Control of Critical Steps: Controlled.
+Process Validation: [To be provided later]
+Characterization: Data included.
+Control of Drug Substance: Specs provided.
+Container Closure System: [Description]
+Stability: Preliminary data included.
 `
 	};
 	// --- End Placeholder Content ---
