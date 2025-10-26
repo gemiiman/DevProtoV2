@@ -64,7 +64,7 @@ Note: Placeholders like '[To be provided later]' are acceptable in early stages 
 
 	pre {
 		margin: 0;
-		font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+		font-family: 'PT Serif', serif;
 		font-size: 13px;
 		line-height: 1.6;
 		color: #cccccc;

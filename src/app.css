@@ -1,2 +1,7 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
+
+/* Set PT Serif as the global font */
+body {
+	font-family: 'PT Serif', serif;
+}

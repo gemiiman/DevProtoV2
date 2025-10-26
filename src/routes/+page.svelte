@@ -141,17 +141,55 @@ Stability: Preliminary data included.
 					<div class="graph-view">
 						<h1>Graph View</h1>
 						<div class="graph-placeholder">
-							<p>Graph visualization will be rendered here</p>
+							<p>Drug Submission Timeline (Flame Graph Mockup)</p>
 							<div class="graph-mockup">
-								<svg viewBox="0 0 400 300" class="graph-svg">
-									<circle cx="100" cy="150" r="30" fill="#0e639c"></circle>
-									<circle cx="200" cy="80" r="30" fill="#0e639c"></circle>
-									<circle cx="200" cy="220" r="30" fill="#0e639c"></circle>
-									<circle cx="300" cy="150" r="30" fill="#0e639c"></circle>
-									<line x1="100" y1="150" x2="200" y2="80" stroke="#888" stroke-width="2"></line>
-									<line x1="100" y1="150" x2="200" y2="220" stroke="#888" stroke-width="2"></line>
-									<line x1="200" y1="80" x2="300" y2="150" stroke="#888" stroke-width="2"></line>
-									<line x1="200" y1="220" x2="300" y2="150" stroke="#888" stroke-width="2"></line>
+								<svg viewBox="0 0 800 300" class="graph-svg" style="background-color: #2a2a2a; border-radius: 4px; font-family: sans-serif; font-size: 10px;">
+									<defs>
+										<linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+											<stop offset="0%" style="stop-color:#1e1e1e;stop-opacity:1" />
+											<stop offset="100%" style="stop-color:#333;stop-opacity:1" />
+										</linearGradient>
+									</defs>
+
+									<text x="75" y="285" fill="#888" text-anchor="middle">Discovery</text>
+									<text x="225" y="285" fill="#888" text-anchor="middle">Pre-Clinical</text>
+									<text x="375" y="285" fill="#aaa" text-anchor="middle" font-weight="bold">IND Submission</text>
+									<text x="525" y="285" fill="#888" text-anchor="middle">Phase 1</text>
+									<text x="675" y="285" fill="#888" text-anchor="middle">Phase 2</text>
+									<rect x="10" y="20" width="130" height="250" fill="url(#grad1)" stroke="#444" />
+									<rect x="160" y="20" width="130" height="250" fill="url(#grad1)" stroke="#444" />
+									<rect x="310" y="20" width="130" height="250" fill="url(#grad1)" stroke="#555" /> <rect x="460" y="20" width="130" height="250" fill="url(#grad1)" stroke="#444" />
+									<rect x="610" y="20" width="130" height="250" fill="url(#grad1)" stroke="#444" />
+
+									<rect x="170" y="230" width="110" height="18" fill="#0b4a74" rx="2"/>
+									<text x="175" y="242" fill="#eee">Tox Study Report</text>
+									<rect x="170" y="205" width="110" height="18" fill="#0b4a74" rx="2"/>
+									<text x="175" y="217" fill="#eee">PK/PD Data</text>
+									<rect x="170" y="180" width="110" height="18" fill="#0b4a74" rx="2"/>
+									<text x="175" y="192" fill="#eee">Safety Pharm</text>
+
+									<rect x="320" y="230" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="242" fill="#fff">Form 1571</text>
+									<rect x="320" y="205" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="217" fill="#fff">Cover Letter</text>
+									<rect x="320" y="180" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="192" fill="#fff">Intro Statement</text>
+									<rect x="320" y="155" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="167" fill="#fff">Nonclinical Summary</text>
+									<rect x="320" y="130" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="142" fill="#fff">CMC Information</text>
+									<rect x="320" y="105" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="117" fill="#fff">Protocol Phase 1</text>
+									<rect x="320" y="80" width="110" height="18" fill="#0e639c" rx="2"/>
+									<text x="325" y="92" fill="#fff">IB</text>
+
+									<rect x="470" y="230" width="110" height="18" fill="#0b4a74" rx="2"/>
+									<text x="475" y="242" fill="#eee">Clinical Study Report</text>
+									<rect x="470" y="205" width="110" height="18" fill="#0b4a74" rx="2"/>
+									<text x="475" y="217" fill="#eee">AE Reporting</text>
+
+									<line x1="400" y1="10" x2="400" y2="275" stroke="#f87171" stroke-width="2" stroke-dasharray="4"/>
+									<text x="405" y="25" fill="#f87171" font-size="9px">Current Focus</text>
 								</svg>
 							</div>
 						</div>
@@ -404,14 +442,14 @@ Stability: Preliminary data included.
 	:global(.dockview-theme-dark .graph-placeholder) { background-color: #252526; border: 1px solid #333; border-radius: 4px; padding: 1rem; text-align: center; }
 	:global(.dockview-theme-dark .graph-placeholder p) { color: #888; margin-bottom: 1rem; font-size: 0.9rem;}
 	:global(.dockview-theme-dark .graph-mockup) { display: flex; justify-content: center; align-items: center; min-height: 150px; }
-	:global(.dockview-theme-dark .graph-svg) { max-width: 200px; width: 100%; height: auto; }
+	:global(.dockview-theme-dark .graph-svg) { width: 95%; height: auto; display: block; margin: 0 auto; }
 
 	:global(.dockview-theme-dark .editor-view) { display: flex; flex-direction: column; width: 100%; height: 100%; background-color: #1e1e1e;}
 	:global(.dockview-theme-dark .editor-header) { padding: 0.5rem 1rem; background-color: #252526; border-bottom: 1px solid #333; flex-shrink: 0;}
 	:global(.dockview-theme-dark .editor-header h2) { color: #fff; font-size: 1rem; margin: 0; }
 	:global(.dockview-theme-dark .editor-textarea) {
 		flex-grow: 1; padding: 1rem; background-color: #1e1e1e; border: none; color: #ccc;
-		font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.6;
+		font-family: 'PT Serif', serif; font-size: 14px; line-height: 1.6;
 		resize: none; width: 100%; box-sizing: border-box; height: 100%; /* Ensure textarea fills space */
 	}
 	:global(.dockview-theme-dark .editor-textarea:focus) { outline: none; }

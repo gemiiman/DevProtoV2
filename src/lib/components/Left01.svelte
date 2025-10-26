@@ -107,7 +107,6 @@
 	}
 	
 	.file-tree {
-		font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 		font-size: 13px;
 		line-height: 1.6;
 		color: #cccccc;
@@ -134,7 +133,6 @@
 		background: transparent;
 		border: none;
 		color: #cccccc;
-		font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 		font-size: 13px;
 		text-align: left;
 		cursor: pointer;
@@ -156,7 +154,6 @@
 		background: transparent;
 		border: none;
 		color: #cccccc;
-		font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 		font-size: 13px;
 		text-align: left;
 		cursor: pointer;
